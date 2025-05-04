@@ -1,129 +1,673 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Your Name | Portfolio</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+import { useState, useEffect, useRef } from 'react';
+import { 
+  ArrowRight, 
+  Code, 
+  Monitor, 
+  Sparkles, 
+  User, 
+  Phone, 
+  Mail, 
+  Linkedin, 
+  MessageCircle,
+  ChevronUp, 
+  Menu,
+  X,
+  Star
+} from 'lucide-react';
 
-    body {
-      background-color: #f5f5f5;
-      color: #333;
-      line-height: 1.6;
-    }
+// Main App Component
+export default function Portfolio() {
+  const [activeSection, setActiveSection] = useState('home');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [subject, setSubject] = useState('');
+  const [message, setMessage] = useState('');
+  
+  const sections = ['home', 'about', 'projects', 'skills', 'contact'];
+  const sectionRefs = {
+    home: useRef(null),
+    about: useRef(null),
+    projects: useRef(null),
+    skills: useRef(null),
+    contact: useRef(null)
+  };
 
-    header {
-      background-color: #222;git
-      color: #fff;
-      padding: 20px 40px;
-      text-align: center;
-    }
+  // Scroll position tracking
+  useEffect(() => {
+    const handleScroll = () => {
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = (window.scrollY / totalHeight) * 100;
+      setScrollProgress(progress);
+      
+      // Determine which section is in view
+      for (const section of sections) {
+        const ref = sectionRefs[section];
+        if (ref.current) {
+          const rect = ref.current.getBoundingClientRect();
+          if (rect.top <= 100 && rect.bottom >= 100) {
+            setActiveSection(section);
+            break;
+          }
+        }
+      }
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
-    header h1 {
-      font-size: 2.5em;
-      margin-bottom: 5px;
-    }
+  // Smooth scroll to section
+  const scrollToSection = (section) => {
+    setIsMenuOpen(false);
+    sectionRefs[section].current.scrollIntoView({ behavior: 'smooth' });
+  };
 
-    nav {
-      margin-top: 10px;
-    }
+  // Handle form submission
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // In a real app, you would send the form data to a server
+    console.log({ name, email, subject, message });
+    alert('Message sent! (This is a demo)');
+    // Reset form
+    setName('');
+    setEmail('');
+    setSubject('');
+    setMessage('');
+  };
 
-    nav a {
-      color: #fff;
-      margin: 0 15px;
-      text-decoration: none;
-    }
-
-    section {
-      padding: 40px 20px;
-      max-width: 900px;
-      margin: auto;
-    }
-
-    h2 {
-      margin-bottom: 20px;
-      font-size: 2em;
-      color: #333;
-    }
-
-    .project {
-      background: #fff;
-      padding: 20px;
-      margin-bottom: 20px;
-      border-left: 5px solid #007BFF;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    }
-
-    footer {
-      text-align: center;
-      padding: 20px;
-      background-color: #222;
-      color: #aaa;
-      font-size: 0.9em;
-    }
-
-    a.button {
-      display: inline-block;
-      background: #007BFF;
-      color: #fff;
-      padding: 10px 15px;
-      margin-top: 10px;
-      border-radius: 5px;
-      text-decoration: none;
-    }
-
-    a.button:hover {
-      background: #0056b3;
-    }
-  </style>
-</head>
-<body>
-
-  <header>
-    <h1>Your Name</h1>
-    <p>Software Developer | Web Designer | ML Enthusiast</p>
-    <nav>
-      <a href="#about">About</a>
-      <a href="#projects">Projects</a>
-      <a href="#contact">Contact</a>
-    </nav>
-  </header>
-
-  <section id="about">
-    <h2>About Me</h2>
-    <p>Hello! I'm a passionate software developer with a love for building web applications and exploring machine learning. I enjoy working on innovative projects and learning new technologies.</p>
-  </section>
-
-  <section id="projects">
-    <h2>Projects</h2>
-    <div class="project">
-      <h3>Project 1: Fall Detection System</h3>
-      <p>A deep learning-based fall detection model using VGG16 and a custom CNN for image classification.</p>
-      <a href="#" class="button">View on GitHub</a>
+  return (
+    <div className="font-sans text-gray-800 bg-gray-50 min-h-screen">
+      {/* Progress bar */}
+      <div className="fixed top-0 left-0 w-full h-1 z-50">
+        <div 
+          className="bg-indigo-600 h-full transition-all duration-300 ease-out"
+          style={{ width: `${scrollProgress}%` }}
+        />
+      </div>
+      
+      {/* Navbar */}
+      <nav className="fixed top-0 left-0 w-full bg-white/90 backdrop-blur-sm shadow-sm z-40">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <div className="flex items-center space-x-2">
+            <span className="text-indigo-600">
+              <Code size={28} />
+            </span>
+            <span className="text-xl font-bold tracking-tight">Portfolio</span>
+          </div>
+          
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex space-x-8">
+            {sections.map((section) => (
+              <button
+                key={section}
+                onClick={() => scrollToSection(section)}
+                className={`font-medium hover:text-indigo-600 transition-colors capitalize ${
+                  activeSection === section ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-gray-600'
+                }`}
+              >
+                {section}
+              </button>
+            ))}
+          </div>
+          
+          {/* Mobile Menu Button */}
+          <button 
+            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
+        
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <div className="md:hidden bg-white border-t shadow-lg">
+            <div className="container mx-auto px-4 py-2 flex flex-col">
+              {sections.map((section) => (
+                <button
+                  key={section}
+                  onClick={() => scrollToSection(section)}
+                  className={`py-3 px-4 text-left hover:bg-gray-100 transition-colors capitalize ${
+                    activeSection === section ? 'text-indigo-600 font-medium' : 'text-gray-600'
+                  }`}
+                >
+                  {section}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </nav>
+      
+      {/* Main Content */}
+      <main className="pt-16">
+        {/* Hero Section */}
+        <section 
+          ref={sectionRefs.home}
+          className="min-h-screen flex items-center justify-center py-20"
+          id="home"
+        >
+          <div className="container mx-auto px-4 grid md:grid-cols-2 gap-8 items-center">
+            <div className="order-2 md:order-1">
+              <h1 className="text-4xl md:text-6xl font-bold mb-4">
+                <span className="text-indigo-600">Creative</span> Developer & Designer
+              </h1>
+              <p className="text-xl text-gray-600 mb-8">
+                Crafting engaging digital experiences through code and design.
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <button 
+                  onClick={() => scrollToSection('projects')}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg transition-colors flex items-center gap-2 group"
+                >
+                  View Projects
+                  <ArrowRight className="group-hover:translate-x-1 transition-transform" size={18} />
+                </button>
+                <button 
+                  onClick={() => scrollToSection('contact')}
+                  className="border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50 px-6 py-3 rounded-lg transition-colors"
+                >
+                  Contact Me
+                </button>
+              </div>
+              <div className="flex space-x-4 mt-8">
+                <a href="#" className="text-gray-600 hover:text-indigo-600 transition-colors">
+                  <Linkedin size={24} />
+                </a>
+                <a href="#" className="text-gray-600 hover:text-indigo-600 transition-colors">
+                  <Mail size={24} />
+                </a>
+                <a href="#" className="text-gray-600 hover:text-indigo-600 transition-colors">
+                  <MessageCircle size={24} />
+                </a>
+              </div>
+            </div>
+            <div className="order-1 md:order-2">
+              <div className="bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full p-4 mx-auto max-w-md aspect-square flex items-center justify-center relative overflow-hidden">
+                <div className="w-5/6 h-5/6 rounded-full overflow-hidden border-8 border-white shadow-lg">
+                  <div className="w-full h-full bg-gray-300 flex items-center justify-center">
+                    <User size={64} className="text-gray-400" />
+                  </div>
+                </div>
+                <div className="absolute top-10 right-16 bg-white p-3 rounded-full shadow-lg">
+                  <Code size={24} className="text-indigo-600" />
+                </div>
+                <div className="absolute bottom-20 left-10 bg-white p-3 rounded-full shadow-lg">
+                  <Monitor size={24} className="text-purple-600" />
+                </div>
+                <div className="absolute top-32 left-16 bg-white p-3 rounded-full shadow-lg">
+                  <Sparkles size={24} className="text-yellow-500" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        {/* About Section */}
+        <section 
+          ref={sectionRefs.about}
+          className="py-20 bg-white"
+          id="about"
+        >
+          <div className="container mx-auto px-4">
+            <SectionHeader title="About Me" subtitle="My background and journey" />
+            
+            <div className="grid md:grid-cols-5 gap-8 mt-12">
+              <div className="md:col-span-2">
+                <div className="relative">
+                  <div className="bg-indigo-100 rounded-xl w-full aspect-square"></div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <User size={80} className="text-indigo-300" />
+                  </div>
+                  <div className="absolute -bottom-3 -right-3 bg-white p-4 rounded-lg shadow-md">
+                    <span className="text-lg font-bold">5+ Years</span>
+                    <span className="block text-sm text-gray-500">Experience</span>
+                  </div>
+                </div>
+              </div>
+              <div className="md:col-span-3">
+                <h3 className="text-2xl font-bold mb-4">Frontend Developer & UI/UX Designer</h3>
+                <p className="text-gray-600 mb-6">
+                  I'm a passionate developer with a keen eye for design and user experience. 
+                  My journey began with a fascination for creating beautiful, functional interfaces
+                  that solve real problems and delight users.
+                </p>
+                <p className="text-gray-600 mb-6">
+                  With expertise in modern frontend technologies like React, Tailwind CSS, and various
+                  animation libraries, I create responsive and engaging web applications that look
+                  great on any device and provide seamless user experiences.
+                </p>
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div>
+                    <h4 className="font-bold mb-2">Education</h4>
+                    <p className="text-gray-600">B.S. Computer Science<br />University of Technology</p>
+                  </div>
+                  <div>
+                    <h4 className="font-bold mb-2">Location</h4>
+                    <p className="text-gray-600">San Francisco, CA<br />Available for remote work</p>
+                  </div>
+                </div>
+                <button 
+                  className="text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-1 group"
+                >
+                  Download Resume
+                  <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        {/* Projects Section */}
+        <section 
+          ref={sectionRefs.projects}
+          className="py-20 bg-gray-50"
+          id="projects"
+        >
+          <div className="container mx-auto px-4">
+            <SectionHeader title="Projects" subtitle="Recent work I've completed" />
+            
+            <div className="mt-12 grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <ProjectCard 
+                title="E-Commerce Dashboard"
+                category="Web Application"
+                description="A comprehensive dashboard for online store management with real-time analytics and inventory tracking."
+                technologies={["React", "Tailwind CSS", "Chart.js"]}
+              />
+              
+              <ProjectCard 
+                title="Travel Planner App"
+                category="Mobile App"
+                description="An interactive trip planner with itinerary management, maps integration, and weather forecasts."
+                technologies={["React Native", "Firebase", "Google Maps API"]}
+              />
+              
+              <ProjectCard 
+                title="Fitness Tracker"
+                category="Web & Mobile App"
+                description="Personal fitness tracking solution with workout plans, progress monitoring, and social sharing."
+                technologies={["React", "Node.js", "MongoDB"]}
+              />
+              
+              <ProjectCard 
+                title="Recipe Finder"
+                category="Web Application"
+                description="Search engine for recipes with filtering by ingredients, dietary restrictions, and cooking time."
+                technologies={["JavaScript", "CSS", "API Integration"]}
+              />
+              
+              <ProjectCard 
+                title="Portfolio Website"
+                category="Website"
+                description="Personal portfolio showcasing projects and skills with modern animations and responsive design."
+                technologies={["React", "Tailwind CSS", "Animation"]}
+              />
+              
+              <ProjectCard 
+                title="Productivity Tool"
+                category="Web Application"
+                description="Task management system with kanban boards, time tracking, and performance analytics."
+                technologies={["React", "Redux", "Firebase"]}
+              />
+            </div>
+          </div>
+        </section>
+        
+        {/* Skills Section */}
+        <section 
+          ref={sectionRefs.skills}
+          className="py-20 bg-white"
+          id="skills"
+        >
+          <div className="container mx-auto px-4">
+            <SectionHeader title="Skills & Expertise" subtitle="Technologies I work with" />
+            
+            <div className="mt-12 grid md:grid-cols-2 gap-12">
+              <div>
+                <h3 className="text-xl font-bold mb-6">Technologies</h3>
+                <div className="space-y-4">
+                  <SkillBar label="HTML/CSS" percentage={95} />
+                  <SkillBar label="JavaScript" percentage={90} />
+                  <SkillBar label="React" percentage={85} />
+                  <SkillBar label="Tailwind CSS" percentage={80} />
+                  <SkillBar label="Node.js" percentage={75} />
+                </div>
+              </div>
+              
+              <div>
+                <h3 className="text-xl font-bold mb-6">Competencies</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <CompetencyCard 
+                    icon={<Monitor size={24} />}
+                    title="Responsive Design"
+                    description="Creating websites that look great on any device"
+                  />
+                  <CompetencyCard 
+                    icon={<Sparkles size={24} />}
+                    title="UI/UX Design"
+                    description="Crafting intuitive and visually appealing interfaces"
+                  />
+                  <CompetencyCard 
+                    icon={<Code size={24} />}
+                    title="Clean Code"
+                    description="Writing maintainable, efficient, and structured code"
+                  />
+                  <CompetencyCard 
+                    icon={<Star size={24} />}
+                    title="Animations"
+                    description="Implementing smooth animations and transitions"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        {/* Contact Section */}
+        <section 
+          ref={sectionRefs.contact}
+          className="py-20 bg-indigo-50"
+          id="contact"
+        >
+          <div className="container mx-auto px-4">
+            <SectionHeader title="Get In Touch" subtitle="Let's work together" isDark={false} />
+            
+            <div className="mt-12 grid md:grid-cols-5 gap-8">
+              <div className="md:col-span-2">
+                <div className="bg-white p-6 rounded-xl shadow-sm h-full">
+                  <h3 className="text-xl font-bold mb-6">Contact Information</h3>
+                  
+                  <div className="space-y-6">
+                    <div className="flex items-start gap-4">
+                      <div className="bg-indigo-100 p-3 rounded-lg text-indigo-600">
+                        <Mail size={20} />
+                      </div>
+                      <div>
+                        <h4 className="font-medium">Email</h4>
+                        <p className="text-gray-600">hello@yourportfolio.com</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start gap-4">
+                      <div className="bg-indigo-100 p-3 rounded-lg text-indigo-600">
+                        <Phone size={20} />
+                      </div>
+                      <div>
+                        <h4 className="font-medium">Phone</h4>
+                        <p className="text-gray-600">+1 (555) 123-4567</p>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h4 className="font-medium mb-3">Social Profiles</h4>
+                      <div className="flex space-x-4">
+                        <a href="#" className="bg-indigo-100 p-3 rounded-lg text-indigo-600 hover:bg-indigo-200 transition-colors">
+                          <Linkedin size={20} />
+                        </a>
+                        <a href="#" className="bg-indigo-100 p-3 rounded-lg text-indigo-600 hover:bg-indigo-200 transition-colors">
+                          <Mail size={20} />
+                        </a>
+                        <a href="#" className="bg-indigo-100 p-3 rounded-lg text-indigo-600 hover:bg-indigo-200 transition-colors">
+                          <MessageCircle size={20} />
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="md:col-span-3">
+                <div className="bg-white p-8 rounded-xl shadow-sm">
+                  <h3 className="text-xl font-bold mb-6">Send Me a Message</h3>
+                  
+                  <div className="space-y-4">
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                        <input 
+                          type="text" 
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                          placeholder="Your name"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input 
+                          type="email" 
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                          placeholder="Your email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Subject</label>
+                      <input 
+                        type="text" 
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                        placeholder="Subject"
+                        value={subject}
+                        onChange={(e) => setSubject(e.target.value)}
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                      <textarea 
+                        rows="4"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all resize-none"
+                        placeholder="Your message"
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                      ></textarea>
+                    </div>
+                    
+                    <div>
+                      <button 
+                        onClick={handleSubmit}
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg transition-colors w-full md:w-auto"
+                      >
+                        Send Message
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+      
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="mb-6 md:mb-0">
+              <div className="flex items-center space-x-2 mb-4">
+                <span className="text-indigo-400">
+                  <Code size={28} />
+                </span>
+                <span className="text-xl font-bold tracking-tight">Portfolio</span>
+              </div>
+              <p className="text-gray-400 max-w-xs">
+                Creating beautiful digital experiences through code and design.
+              </p>
+            </div>
+            
+            <div className="flex flex-col md:flex-row space-y-6 md:space-y-0 md:space-x-12">
+              <div>
+                <h4 className="font-bold mb-4 text-lg">Navigation</h4>
+                <ul className="space-y-2">
+                  {sections.map((section) => (
+                    <li key={section}>
+                      <button
+                        onClick={() => scrollToSection(section)}
+                        className="text-gray-400 hover:text-white transition-colors capitalize"
+                      >
+                        {section}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              
+              <div>
+                <h4 className="font-bold mb-4 text-lg">Connect</h4>
+                <div className="flex space-x-4">
+                  <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                    <Linkedin size={20} />
+                  </a>
+                  <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                    <Mail size={20} />
+                  </a>
+                  <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                    <MessageCircle size={20} />
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center md:text-left">
+            <p className="text-gray-500">© {new Date().getFullYear()} Your Portfolio. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
+      
+      {/* Back to top button */}
+      <button 
+        onClick={() => scrollToSection('home')}
+        className={`fixed bottom-6 right-6 bg-indigo-600 text-white p-3 rounded-full shadow-lg hover:bg-indigo-700 transition-all ${
+          scrollProgress > 20 ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+      >
+        <ChevronUp size={20} />
+      </button>
+      
+      {/* Add styles for animations */}
+      <style jsx>{`
+        @keyframes float {
+          0% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
+          100% { transform: translateY(0px); }
+        }
+        
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeInDown {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
-    <div class="project">
-      <h3>Project 2: GraphQL Book Manager</h3>
-      <p>A serverless GraphQL API built using AWS AppSync and DynamoDB to manage a book collection.</p>
-      <a href="#" class="button">View Project</a>
+  );
+}
+
+// Section Header Component
+function SectionHeader({ title, subtitle, isDark = true }) {
+  return (
+    <div className="text-center mb-10">
+      <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${isDark ? 'text-gray-800' : 'text-indigo-900'}`}>
+        {title}
+      </h2>
+      <p className={`text-xl ${isDark ? 'text-gray-600' : 'text-indigo-700'}`}>
+        {subtitle}
+      </p>
+      <div className="w-24 h-1 bg-indigo-600 mx-auto mt-6"></div>
     </div>
-  </section>
+  );
+}
 
-  <section id="contact">
-    <h2>Contact</h2>
-    <p>Email: yourname@example.com</p>
-    <p>LinkedIn: <a href="https://www.linkedin.com/in/yourname" target="_blank">yourname</a></p>
-    <p>GitHub: <a href="https://github.com/yourusername" target="_blank">yourusername</a></p>
-  </section>
+// Project Card Component
+function ProjectCard({ title, category, description, technologies }) {
+  const [isHovered, setIsHovered] = useState(false);
+  
+  return (
+    <div 
+      className="bg-white rounded-xl shadow-sm overflow-hidden transform transition-all duration-300 hover:-translate-y-2 hover:shadow-md"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div className="bg-gray-100 h-48 flex items-center justify-center relative overflow-hidden">
+        <div 
+          className={`absolute inset-0 bg-indigo-600 bg-opacity-80 flex items-center justify-center transition-opacity duration-300 ${
+            isHovered ? 'opacity-100' : 'opacity-0'
+          }`}
+        >
+          <button className="bg-white text-indigo-600 px-4 py-2 rounded-lg font-medium">
+            View Project
+          </button>
+        </div>
+        <div className="text-gray-300">
+          <Code size={64} />
+        </div>
+      </div>
+      <div className="p-6">
+        <span className="text-sm font-medium text-indigo-600 mb-2 block">{category}</span>
+        <h3 className="text-xl font-bold mb-2">{title}</h3>
+        <p className="text-gray-600 mb-4">{description}</p>
+        <div className="flex flex-wrap gap-2">
+          {technologies.map((tech, index) => (
+            <span 
+              key={index} 
+              className="bg-indigo-50 text-indigo-700 text-xs font-medium px-3 py-1 rounded-full"
+            >
+              {tech}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
-  <footer>
-    &copy; 2025 Your Name. All rights reserved.
-  </footer>
+// Skill Bar Component
+function SkillBar({ label, percentage }) {
+  const [width, setWidth] = useState(0);
+  
+  useEffect(() => {
+    // Animate on component mount
+    const timer = setTimeout(() => {
+      setWidth(percentage);
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, [percentage]);
+  
+  return (
+    <div>
+      <div className="flex justify-between mb-1">
+        <span className="font-medium">{label}</span>
+        <span>{percentage}%</span>
+      </div>
+      <div className="w-full bg-gray-200 rounded-full h-2.5">
+        <div 
+          className="bg-indigo-600 h-2.5 rounded-full transition-all duration-1000 ease-out"
+          style={{ width: `${width}%` }}
+        ></div>
+      </div>
+    </div>
+  );
+}
 
-</body>
-</html>
+// Competency Card Component
+function CompetencyCard({ icon, title, description }) {
+  return (
+    <div className="bg-gray-50 p-6 rounded-xl border border-gray-100 hover:border-indigo-200 transition-colors">
+      <div className="text-indigo-600 mb-4">
+        {icon}
+      </div>
+      <h4 className="font-bold mb-2">{title}</h4>
+      <p className="text-gray-600 text-sm">{description}</p>
+    </div>
+  );
+}
