@@ -1,1 +1,1 @@
-# Portfolio Of thMaster Parth Shrivastava who is Ai engineer, ML developer, Computer enthusiast and Geo-politics intrested Student
+# Agentic AI that learns from new data Input.
